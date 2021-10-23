@@ -1,6 +1,6 @@
 package oauth2
 
-type Scope string | []string;
+type Scope string || []string;
 
 func Test() Scope {
 	return "hello"
