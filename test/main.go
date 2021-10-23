@@ -1,4 +1,4 @@
-package test
+package main
 
 import (
 	"fmt"
@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Printf("%s", types.Test())
+	fmt.Printf("%s", "hello")
 }
