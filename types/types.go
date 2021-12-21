@@ -72,7 +72,7 @@ type Options interface {
 	CreateDecisionPage(data map[string]interface{}) (string, error)
 	CreateCode(req TokenRequest) (*Code, error)
 	CreateAccessToken(req TokenRequest) (*Token, error)
-	CreateRefreshToken(req TokenRequest) (*Token, error)
+	CreateRefreshToken(data TokenRequest) (*Token, error)
 
 	GetTokenTTL(token Token) (int64, error)
 	GetCode(code string) (*Code, error)

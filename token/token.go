@@ -25,12 +25,12 @@ type ClientCredentialsResponse struct {
 }
 
 func clientCredentials(o types.Options, data map[string]interface{}) *ClientCredentialsResponse {
-	scope :=  data["scope"].([]string)
+	scope := data["scope"].([]string)
 	accessToken, err := o.CreateAccessToken(types.TokenRequest{
-		UserID: data["user_id"],
+		UserID:   data["user_id"],
 		ClientID: data["client_id"],
-		Scope: scope,
-		TTL: o.DefaultAccessTokenTTL(),
+		Scope:    scope,
+		TTL:      o.DefaultAccessTokenTTL(),
 	})
 	if err != nil {
 		return nil
@@ -46,6 +46,7 @@ func clientCredentials(o types.Options, data map[string]interface{}) *ClientCred
 
 func authorizationCode(o types.Options, data map[string]interface{}) (*DefaultTokenResponse, errors.OAuth2Error) {
 	givenCode := data["code"]
+	scope := data["scope"].([]string)
 	client := data["client"].(types.Client)
 	code, err := o.GetCode(givenCode.(string))
 	if err != nil || code == nil {
@@ -56,29 +57,29 @@ func authorizationCode(o types.Options, data map[string]interface{}) (*DefaultTo
 		return nil, *errors.InvalidGrant("Code issued elsewhere")
 	}
 
-	var refreshToken map[string]string{}
+	var refreshToken interface{}
 	if o.ValidGrantType(client, "refresh_token") {
 		refreshToken, _ = o.CreateRefreshToken(types.TokenRequest{
-			UserID: data["user_id"],
+			UserID:   data["user_id"],
 			ClientID: data["client_id"],
-			Scope: scope,
-			TTL: o.DefaultRefreshTokenTTL(),
+			Scope:    scope,
+			TTL:      o.DefaultRefreshTokenTTL(),
 		})
 	}
 
 	accessToken, _ := o.CreateAccessToken(types.TokenRequest{
-		UserID: data["user_id"],
+		UserID:   data["user_id"],
 		ClientID: data["client_id"],
-		Scope: scope,
-		TTL: o.DefaultAccessTokenTTL(),
+		Scope:    scope,
+		TTL:      o.DefaultAccessTokenTTL(),
 	})
 
 	return &DefaultTokenResponse{
-		Scope:       data["scope"].([]string),
-		TokenType:   "Bearer",
-		AccessToken: accessToken.Token,
+		Scope:        data["scope"].([]string),
+		TokenType:    "Bearer",
+		AccessToken:  accessToken.Token,
 		RefreshToken: refreshToken.Token,
-		ExpiresIn:   o.DefaultAccessTokenTTL(),
+		ExpiresIn:    o.DefaultAccessTokenTTL(),
 	}, nil
 }
 

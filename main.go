@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"oauth2/token"
 	"oauth2/types"
+	"time"
 )
 
 type Impl struct {
@@ -21,11 +22,6 @@ func some(slice []string, val string) bool {
 	return false
 }
 
-// var options = types.Options{
-// 	CodeTTL:         300,
-// 	AccessTokenTTL:  3600,
-// 	RefreshTokenTTL: 1209600,
-// }
 func (i Impl) DefaultCodeTTL() int64 {
 	return 300
 }
@@ -42,16 +38,34 @@ func (i Impl) CreateDecisionPage(req types.Request) (string, error) {
 	return "", errors.New("CreateDecisionPage not implemented")
 }
 
-func (i Impl) CreateCode(req types.Request) (*types.Code, error) {
-	return nil, errors.New("CreateCode not implemented")
+func (i Impl) CreateCode(req types.TokenRequest) (*types.Code, error) {
+	return &types.Code{
+		Scope:     req.Scope,
+		Code:      "fake_code",
+		UserID:    req.UserID,
+		ClientID:  req.ClientID,
+		CreatedAt: time.UTC.String(),
+	}, nil
 }
 
-func (i Impl) CreateAccessToken(req types.Request) (*types.Token, error) {
-	return nil, errors.New("CreateAccessToken not implemented")
+func (i Impl) CreateAccessToken(req types.TokenRequest) (*types.Token, error) {
+	return &types.Token{
+		Scope:     req.Scope,
+		Token:     "fake_access_token",
+		UserID:    req.UserID,
+		ClientID:  req.ClientID,
+		CreatedAt: time.UTC.String(),
+	}, nil
 }
 
-func (i Impl) CreateRefreshToken(req types.Request) (*types.Token, error) {
-	return nil, errors.New("CreateRefreshToken not implemented")
+func (i Impl) CreateRefreshToken(req types.TokenRequest) (*types.Token, error) {
+	return &types.Token{
+		Scope:     req.Scope,
+		Token:     "fake_refresh_token",
+		UserID:    req.UserID,
+		ClientID:  req.ClientID,
+		CreatedAt: time.UTC.String(),
+	}, nil
 }
 
 // Token
@@ -100,7 +114,6 @@ func (i Impl) ValidSecret(client types.Client, client_secret string) bool {
 }
 
 func (i Impl) ValidScope(client types.Client, scopes []string) bool {
-	fmt.Println("valid scope", client.Scopes, scopes)
 	for _, sc := range scopes {
 		if !some(client.Scopes, sc) {
 			return false
