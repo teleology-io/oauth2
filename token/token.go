@@ -25,13 +25,19 @@ type ClientCredentialsResponse struct {
 }
 
 func clientCredentials(o types.Options, data map[string]interface{}) *ClientCredentialsResponse {
-	accessToken, err := o.CreateAccessToken(data)
+	scope :=  data["scope"].([]string)
+	accessToken, err := o.CreateAccessToken(types.TokenRequest{
+		UserID: data["user_id"],
+		ClientID: data["client_id"],
+		Scope: scope,
+		TTL: o.DefaultAccessTokenTTL(),
+	})
 	if err != nil {
 		return nil
 	}
 
 	return &ClientCredentialsResponse{
-		Scope:       data["scope"].([]string),
+		Scope:       scope,
 		TokenType:   "Bearer",
 		AccessToken: accessToken.Token,
 		ExpiresIn:   o.DefaultAccessTokenTTL(),
@@ -52,10 +58,20 @@ func authorizationCode(o types.Options, data map[string]interface{}) (*DefaultTo
 
 	var refreshToken map[string]string{}
 	if o.ValidGrantType(client, "refresh_token") {
-		refreshToken, _ = o.CreateRefreshToken(data)
+		refreshToken, _ = o.CreateRefreshToken(types.TokenRequest{
+			UserID: data["user_id"],
+			ClientID: data["client_id"],
+			Scope: scope,
+			TTL: o.DefaultRefreshTokenTTL(),
+		})
 	}
 
-	accessToken, _ := o.CreateAccessToken(data)
+	accessToken, _ := o.CreateAccessToken(types.TokenRequest{
+		UserID: data["user_id"],
+		ClientID: data["client_id"],
+		Scope: scope,
+		TTL: o.DefaultAccessTokenTTL(),
+	})
 
 	return &DefaultTokenResponse{
 		Scope:       data["scope"].([]string),
@@ -65,44 +81,6 @@ func authorizationCode(o types.Options, data map[string]interface{}) (*DefaultTo
 		ExpiresIn:   o.DefaultAccessTokenTTL(),
 	}, nil
 }
-
-// // const user = await
-//   // TODO: implement this
-//   const Code = await options.getCode(code);
-//   if (!Code) {
-//     throw new InvalidGrant('Code not found');
-//   }
-
-//   if (Code.client_id !== client.id) {
-//     throw new InvalidGrant('Code issued elsewhere');
-//   }
-
-//   const canRefresh = options.validGrantType(client, 'refresh_token');
-//   const [accessToken, refreshToken] = await Promise.all([
-//     options.createAccessToken({
-//       user_id: Code.user_id,
-//       client_id: client.id,
-//       ttl: options.accessTokenTtl,
-//       scope,
-//     }),
-//     canRefresh
-//       ? options.createRefreshToken({
-//         user_id: Code.user_id,
-//         client_id: client.id,
-//         ttl: options.refreshTokenTtl,
-//         scope,
-//       })
-//       : noop(),
-//   ]);
-
-//   return {
-//     token_type: 'Bearer',
-//     expires_in: options.accessTokenTtl,
-//     access_token: accessToken.token,
-//     // @ts-ignore
-//     refresh_token: refreshToken.token,
-//     scope,
-//   }
 
 func TokenRequest(o types.Options) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {

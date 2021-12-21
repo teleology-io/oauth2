@@ -16,6 +16,13 @@ type Code struct {
 	CreatedAt string
 }
 
+type TokenRequest struct {
+	Scope    []string
+	UserID   string
+	ClientID string
+	TTL      int64
+}
+
 type Request struct {
 	Data    map[string]interface{}
 	Query   map[string]string
@@ -63,9 +70,9 @@ type Options interface {
 	DefaultRefreshTokenTTL() int64
 
 	CreateDecisionPage(data map[string]interface{}) (string, error)
-	CreateCode(data map[string]interface{}) (*Code, error)
-	CreateAccessToken(data map[string]interface{}) (*Token, error)
-	CreateRefreshToken(data map[string]interface{}) (*Token, error)
+	CreateCode(req TokenRequest) (*Code, error)
+	CreateAccessToken(req TokenRequest) (*Token, error)
+	CreateRefreshToken(req TokenRequest) (*Token, error)
 
 	GetTokenTTL(token Token) (int64, error)
 	GetCode(code string) (*Code, error)
